@@ -22,14 +22,7 @@ const redMarkerIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const neighborhoods = [
-  "Nova Marabá",
-  "Cidade Nova",
-  "Núcleo Pioneiro",
-  "São Félix",
-  "Morada Nova",
-  "Liberdade",
-];
+
 
 const infractionTypes = [
   { id: "entulho", label: "Obstrução de Calçada (Entulho)", icon: "🚧" },
@@ -48,13 +41,12 @@ interface UploadedImage {
 
 interface SubmittedReport {
   protocol: string;
-  neighborhood: string;
   reference: string;
   type: string;
   description: string;
   images: number;
   date: string;
-  coordinates?: { lat: number; lng: number };
+  coordinates: { lat: number; lng: number };
 }
 
 interface LocationMarkerProps {
@@ -147,7 +139,7 @@ export const ReportSection = () => {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [neighborhood, setNeighborhood] = useState("");
+
   const [reference, setReference] = useState("");
   const [infractionType, setInfractionType] = useState("");
   const [description, setDescription] = useState("");
@@ -232,7 +224,7 @@ export const ReportSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!neighborhood || !reference || !infractionType) {
+    if (!reference || !infractionType) {
       setError("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
@@ -249,13 +241,12 @@ export const ReportSection = () => {
 
     const report: SubmittedReport = {
       protocol: generateProtocol(),
-      neighborhood,
       reference,
       type: infractionTypes.find((t) => t.id === infractionType)?.label || infractionType,
       description,
       images: images.length,
       date: new Date().toLocaleString("pt-BR"),
-      coordinates: markerPosition ? { lat: markerPosition.lat, lng: markerPosition.lng } : undefined,
+      coordinates: { lat: markerPosition!.lat, lng: markerPosition!.lng },
     };
 
     setSubmittedReport(report);
@@ -266,7 +257,7 @@ export const ReportSection = () => {
   const resetForm = () => {
     images.forEach((img) => URL.revokeObjectURL(img.preview));
     setImages([]);
-    setNeighborhood("");
+
     setReference("");
     setInfractionType("");
     setDescription("");
@@ -311,7 +302,7 @@ export const ReportSection = () => {
                   <div>
                     <span className="text-slate-500">Local:</span>
                     <p className="font-medium text-slate-700">
-                      {submittedReport.neighborhood} - {submittedReport.reference}
+                      {submittedReport.reference}
                     </p>
                     {submittedReport.coordinates && (
                       <p className="text-xs text-slate-400 mt-1 font-mono">
@@ -476,39 +467,19 @@ export const ReportSection = () => {
             )}
           </div>
 
-          {/* Location Fields */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                Bairro / Setor <span className="text-red-500">*</span>
-              </label>
-              <select
-                required
-                value={neighborhood}
-                onChange={(e) => setNeighborhood(e.target.value)}
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-slate-700 transition"
-              >
-                <option value="">Selecione...</option>
-                {neighborhoods.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
-                Ponto de Referência <span className="text-red-500">*</span>
-              </label>
-              <input
-                required
-                type="text"
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                placeholder="Ex: Próximo ao supermercado..."
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-slate-700 transition"
-              />
-            </div>
+          {/* Reference Field */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+              Ponto de Referência <span className="text-red-500">*</span>
+            </label>
+            <input
+              required
+              type="text"
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder="Ex: Próximo ao supermercado, em frente à escola..."
+              className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-slate-700 transition"
+            />
           </div>
 
           {/* Infraction Type */}
