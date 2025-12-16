@@ -30,7 +30,7 @@ const infractionTypes = [
   { id: "queimada", label: "Queimada de Resíduos", icon: "🔥" },
   { id: "cacamba", label: "Caçamba Irregular", icon: "🚛" },
   { id: "lixo", label: "Lixo em Via Pública", icon: "🗑️" },
-  { id: "outros", label: "Outros", icon: "📋" },
+  { id: "outros", label: "Outros!", icon: "📋" },
 ];
 
 interface UploadedImage {
